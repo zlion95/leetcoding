@@ -3,47 +3,37 @@
 
 using namespace std;
 
-struct block_t {
-    char c;
-    bool is_multi;
-    struct block_t *next;
-};
-
 class Solution {
 public:
-    void filter_pattern(string p, struct block_t *phead) {
-        if (p.size() == 0) return;
-        int last = p[0];
+    string filter_pattern(string &p) {
+        string newp = "";
+        char last = p[0];
+        char newp_last = '\0';
         bool is_multi = false;
-        struct block_t *b;
+
+        if (p.size() == 0) return newp;
         for (int i = 1; i < p.size(); ++i) {
             if (p[i] == '*') {
                 is_multi = true;
             } else if (p[i] != '*') {
-                if (!(last == phead->c && is_multi && phead->is_multi)) {
-                    b = (struct block_t *) malloc(sizeof(block_t));
-                    b->c = last;
-                    b->is_multi = is_multi;
-                    b->next = NULL;
-                    phead->next = b;
-                    phead = b;
+                if (!(last == newp_last && is_multi && newp[newp.size() - 1] == '*')) {
+                    newp += last;
+                    if (is_multi) newp += '*';
+                    newp_last = last;
                 }
-
                 is_multi = false;
                 last = p[i];
             }
         }
-        if (!(last == phead->c && is_multi && phead->is_multi)) {
-            b = (struct block_t *) malloc(sizeof(block_t));
-            b->c = last;
-            b->is_multi = is_multi;
-            b->next = NULL;
-            phead->next = b;
-            phead = b;
+        if (!(last == newp_last && is_multi 
+                && newp[newp.size() - 1] == '*')) {
+            newp += last;
+            if (is_multi) newp += '*';
         }
+        return newp;
     }
 
-    bool is_multi(string p, int pi) {
+    bool is_multi(string &p, int pi) {
         if (pi + 1 == p.size())
             return false;
         if (p[pi + 1] == '*')
@@ -51,7 +41,7 @@ public:
         return false;
     }
 
-    bool match(string s, string p, int si, int pi)
+    bool match(string &s, string &p, int si, int pi)
     {
         if (si >= s.size() && pi >= p.size())
             return true;
@@ -80,24 +70,7 @@ public:
 
     bool isMatch(string s, string p)
     {
-        struct block_t head = {
-            c : '\0',
-            is_multi : false,
-            next : NULL
-        };
-        struct block_t *pblock, *temp;
-        string newp = "";
-
-        filter_pattern(p, &head);
-
-        for (pblock = head.next; pblock != NULL;) {
-            newp += pblock->c;
-            if (pblock->is_multi) newp += '*';
-            temp = pblock;
-            pblock = pblock->next;
-            free(temp);
-            cout << "???" << endl;
-        }
+        string newp = filter_pattern(p);
 
         cout << s << endl;
         cout << p << endl;
