@@ -43,22 +43,18 @@ public:
 
     bool match(string &s, string &p, int si, int pi)
     {
-        if (si >= s.size() && pi >= p.size())
+        if (si >= s.size() && pi >= p.size()) {
             return true;
-
-        if (si >= s.size()) {
+        } else if (si >= s.size()) {
             if (is_multi(p, pi)) return match(s, p, si, pi + 2);
             else return false;
-        }
-
-        if (pi >= p.size()) {
+        } else if (pi >= p.size()) {
             return false;
         }
         
         if (s[si] == p[pi] || p[pi] == '.') {
             if (is_multi(p, pi))
                 return match(s, p, si + 1, pi)
-                    || match(s, p, si + 1, pi + 2)
                     || match(s, p, si, pi + 2);
             return match(s, p, si + 1, pi + 1);
         } else {
@@ -71,11 +67,7 @@ public:
     bool isMatch(string s, string p)
     {
         string newp = filter_pattern(p);
-
-        cout << s << endl;
-        cout << p << endl;
-        cout << newp << endl;
-        return match(s, newp, 0, 0);
+        return match(s, p, 0, 0);
     }
 };
 
