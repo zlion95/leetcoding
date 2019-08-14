@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <map>
 #include <limits.h>
 
 using namespace std;
@@ -15,70 +16,49 @@ public:
         sum_pair.push_back(pair);
     }
 
+    void proper_insert(vector<int> &list, int value) {
+        for (vector<int>::iterator it = list.begin();
+                it != list.end(); ++it) {
+            if (value == *it) break;
+            if (value > *it) {
+                list.insert(it, value);
+                break;
+            }
+        }
+    }
+
     vector<vector<int> > threeSum(vector<int>& nums) {
         vector<vector<int> > sum_pair;
-        int pstart = 0;
-        int zstart = INT_MAX;
-        int i, j, value, last_i, last_j, mend;
-        vector<int>::iterator it;
-
-
+        vector<int> sorted_keys;
+        map<int, int> value_maps;
+        map<int, int>::iterator it, zs_it, ps_it;
+        
         if (nums.size() < 2) return sum_pair;
-        sort(nums.begin(), nums.end());
-        while(pstart < nums.size()) {   //search zero and positive start index
-            if (nums[pstart] == 0 && zstart == INT_MAX) zstart = pstart;
-            else if (nums[pstart] > 0) break;
-            else pstart++;
+
+        sorted_keys.push_back(nums[0]);
+        for (int i = 0; i < nums.size(); ++i) {
+            it = value_maps.find(nums[i]);
+            if (it == value_maps.end()) {
+                value_maps[nums[i]] = 1;
+                proper_insert(sorted_keys, nums[i]);
+            }
+            else *it += 1;
         }
 
-        if (zstart != INT_MAX && pstart - zstart > 2) 
+        zs_it = sorted_keys.end();
+        ps_it = sorted_keys.begin();
+        while(ps_it != sorted_keys.end()) { 
+            if (*ps_it == 0 && zs_it == sorted_keys.end()) zs_it = ps_it;
+            else if (*ps_it > 0) break;
+            else ps_it++;
+        }
+        if (zs_it != sorted_keys.end() && ps_it - zs_it > 2)
             add_pair(sum_pair, 0, 0, 0);
-        if (pstart > nums.size()) return sum_pair;          //all positive
-        if (pstart == 0 || zstart == 0) return sum_pair;    //all negative
-        mend = min(zstart, pstart);
+        if (ps_it == sorted_keys.end()) return sum_pair;
+        if (ps_it == sorted_keys.begin() || zs_it == sorted_keys.begin())
+            return sum_pair;
+        
 
-        if (pstart > 1 && zstart > 1) {
-            last_i = INT_MAX;
-            for (i = 0; i < mend - 1; ++i) {
-                if (nums[i] == last_i) continue;
-                last_j = INT_MIN;
-                for (j = i + 1; j < mend; ++j) {
-                    if (nums[j] == last_j) continue;
-                    value = -(nums[i] + nums[j]);
-                    it = find(nums.begin() + pstart, nums.end(), value);
-                    if (it != nums.end()) add_pair(sum_pair, nums[j], nums[i], value);
-                    last_j = nums[j];
-                }
-                last_i = nums[i];
-            }
-        }
-
-        if (nums.size() - pstart >= 2) {
-            last_i = INT_MIN;
-            for (i = pstart; i < nums.size() - 1; ++i) {
-                if (nums[i] == last_i) continue;
-                last_j = INT_MAX;
-                for (j = i + 1; j < nums.size(); ++j) {
-                    if (nums[j] == last_j) continue;
-                    value = -(nums[i] + nums[j]);
-                    it = find(nums.begin(), nums.begin() + mend, value);
-                    if (it != nums.begin() + mend) add_pair(sum_pair, value, nums[j], nums[i]);
-                    last_j = nums[j];
-                }
-                last_i = nums[i];
-            }
-        }
-
-        if (zstart != INT_MAX) {
-            last_i = INT_MAX;
-            for(i = 0; i < min(pstart, zstart); ++i) {
-                if (nums[i] == last_i) continue;
-                it = find(nums.begin() + pstart, nums.end(), -nums[i]);
-                if (it != nums.end()) add_pair(sum_pair, nums[i], 0, -nums[i]);
-                last_i = nums[i];
-                cout << "flag3" << endl;
-            }
-        }
 
         return sum_pair;
     }
