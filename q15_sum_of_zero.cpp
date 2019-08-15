@@ -6,6 +6,20 @@
 
 using namespace std;
 
+struct elem {
+    int value;
+    int cnt;
+    struct elem *elem1;
+    struct elem *elem2;
+
+    elem(int i, int j) {
+        value = i;
+        cnt = j;
+        elem1 = NULL;
+        elem2 = NULL;
+    }
+};
+
 class Solution {
 public:
     void add_pair(vector<vector<int> > &sum_pair, int i, int j, int k) {
@@ -16,106 +30,84 @@ public:
         sum_pair.push_back(pair);
     }
 
-    void proper_insert(vector<int> &list, int value) {
-        vector<int>::iterator it = list.begin();
-        while (it != list.end() && *it < value) it++;
-        if (it == list.end()) list.insert(list.end(), value);
-        else if (*it == value) return;
-        else list.insert(it, value);
+    void proper_insert(vector<struct elem> &list, int value) {
+        vector<struct elem>::iterator it = list.begin();
+        while (it != list.end() && it->value < value) it++;
+        if (it == list.end()) {
+            struct elem e(value, 1);
+            list.insert(list.end(), e);
+        } else if (it->value == value) {
+            it->cnt++;
+        } else {
+            struct elem e(value, 1);
+            list.insert(it, e);
+        }
     }
 
-    bool find_one(map<int, int> &value_maps, int value) {
-        map<int, int>::iterator it;
-        it = value_maps.find(value);
-        if (it != value_maps.end()) return true;
-        return false;
+    void middle_match(vector<vector<int> > &sum_pair, 
+            vector<elem> &mlist, vector<elem> &plist, short mflag) {
+        int i = 0, j = plist.size() - 1;
+        while (i < mlist.size() && j >= 0) {
+            if (-mlist[i].value == plist[j].value) {
+                switch(mflag) {
+                case 0:
+                    add_pair(sum_pair, mlist[i].value, 0, plist[j].value);
+                case 1: //mlist is merge
+                    add_pair(sum_pair, (mlist[i].elem1)->value, (mlist[i].elem2)->value, plist[j].value);
+                case 2: //plist is merge
+                    add_pair(sum_pair, (plist[j].elem1)->value, (mlist[j].elem2)->value, plist[i].value);
+                }
+                i++;
+            }
+            else if (-mlist[i].value > plist[j].value) i++;
+            else j--;
+        }
     }
 
-    void find2add_when_zero(map<int, int> &value_maps, vector<vector<int> > &sum_pair,
-            int value, bool with_zero) {
-        if (with_zero)
-            if (find_one(value_maps, -value))
-                add_pair(sum_pair, value, -value, 0);
+    void merge_pair(vector<struct elem> &list, vector<struct elem> &mergelist) {
+        for (int i = 0; i < list.size() - 1; ++i) {
+            if (list[i].cnt > 1) 
+                proper_insert(mergelist, 2 * list[i].value);
+
+            for (int j = 0; j < i; ++j) {
+                proper_insert(mergelist, list[i].value + list[j].value);
+            }
+        }
     }
 
     vector<vector<int> > threeSum(vector<int>& nums) {
         vector<vector<int> > sum_pair;
-        vector<int> sorted_keys;
-        map<int, int> value_maps;
-        map<int, int>::iterator it;
-        vector<int>::iterator zs_it, ps_it;
-        int value, minus_end, zstart, pstart;
-        bool with_zero = false, one_minus = false;
-        
+        vector<struct elem> m_sorted_keys, p_sorted_keys, mergelist;
+        int cnt0 = 0, cntp = 0, cntm = 0;
+
         if (nums.size() < 2) return sum_pair;
-        sorted_keys.push_back(nums[0]);
+        
         for (int i = 0; i < nums.size(); ++i) {
-            it = value_maps.find(nums[i]);
-            if (it == value_maps.end()) {
-                value_maps[nums[i]] = 1;
-                proper_insert(sorted_keys, nums[i]);
+            if (nums[i] == 0) {
+                cnt0++;
+            } else if (nums[i] > 0) {
+                proper_insert(p_sorted_keys, nums[i]);
+                cntp++;
+            } else {
+                proper_insert(m_sorted_keys, nums[i]);
+                cntm++;
             }
-            else value_maps[nums[i]] += 1;
         }
 
-        zstart = sorted_keys.size();
-        pstart = 0;
-        while (pstart < sorted_keys.size()) {
-            if (sorted_keys[pstart] == 0) {
-                zstart = pstart;
-                pstart++;
-                break;
-            }
-            else if (sorted_keys[pstart] > 0) break;
-            pstart++;
-        }
+        if (cnt0 > 2) add_pair(sum_pair, 0, 0, 0);
+        if (cntp == 0 || cntm == 0) return sum_pair;
 
-        if (zstart < sorted_keys.size()){
-            if (value_maps[0] > 2)
-                add_pair(sum_pair, 0, 0, 0);
-            with_zero = true;
+        if (cnt0 != 0) {//m0p
+            middle_match(sum_pair, m_sorted_keys, p_sorted_keys, 0);
         }
-        if (pstart == sorted_keys.size()) return sum_pair;
-        minus_end = min(zstart, pstart);
-        if (minus_end == 0) return sum_pair;
-
-        if (minus_end >= 2 || (minus_end == 1 && value_maps[sorted_keys[0]] > 1)) {
-            for (int i = 0; i < minus_end; ++i) {
-                if (value_maps[sorted_keys[i]] > 1) {
-                    value = -sorted_keys[i] * 2;
-                    if (find_one(value_maps, value))
-                        add_pair(sum_pair, sorted_keys[i], sorted_keys[i], value);
-                }
-                for (int j = 0; j < i; ++j) {
-                    value = -(sorted_keys[i] + sorted_keys[j]);
-                    if (find_one(value_maps, value))
-                        add_pair(sum_pair, sorted_keys[i], sorted_keys[j], value);
-                }
-                find2add_when_zero(value_maps, sum_pair, sorted_keys[i], with_zero);
-            }
-        } else {
-            one_minus = true;
+        if (cntm > 1) {//mmp
+            merge_pair(m_sorted_keys, mergelist);
+            middle_match(sum_pair, mergelist, p_sorted_keys, 1);
         }
-
-        if (sorted_keys.size() - pstart >= 2 || 
-                (sorted_keys.size() - 1 == pstart && value_maps[sorted_keys[pstart]] > 1)) {
-            for (int i = pstart; i < sorted_keys.size(); ++i) {
-                if (value_maps[sorted_keys[i]] > 1) {
-                    value = -sorted_keys[i] * 2;
-                    if (find_one(value_maps, value))
-                        add_pair(sum_pair, sorted_keys[i], sorted_keys[i], value);
-                }
-                for (int j = pstart; j < i; ++j) {
-                    value = -(sorted_keys[i] + sorted_keys[j]);
-                    if (find_one(value_maps, value))
-                        add_pair(sum_pair, sorted_keys[i], sorted_keys[j], value);
-                }
-                if (one_minus)
-                    find2add_when_zero(value_maps, sum_pair, sorted_keys[i], with_zero);
-            }
-        } else if (one_minus && with_zero) {
-            if (sorted_keys[0] == -sorted_keys[pstart])
-                add_pair(sum_pair, sorted_keys[0], sorted_keys[pstart], 0);
+        if (cntp > 1) {//mpp
+            mergelist.clear();
+            merge_pair(p_sorted_keys, mergelist);
+            middle_match(sum_pair, m_sorted_keys, mergelist, 2);
         }
 
         return sum_pair;
