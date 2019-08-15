@@ -6,19 +6,27 @@
 
 using namespace std;
 
+struct elem;
+struct elem_pair;
+
+struct elem_pair{
+    struct elem *elem1;
+    struct elem *elem2;
+    elem_pair(struct elem *e1, struct elem *e2) : elem1(e1), elem2(e2) {}
+};
+
 struct elem {
     int value;
     int cnt;
-    struct elem *elem1;
-    struct elem *elem2;
+    vector<struct elem_pair> pair;
 
-    elem(int i, int j) {
-        value = i;
-        cnt = j;
-        elem1 = NULL;
-        elem2 = NULL;
+    elem(int i, int j) : value(i), cnt(j) {}
+    elem(int i, int j, struct elem *e1, struct elem *e2) : value(i), cnt(j) {
+        struct elem_pair ep(e1, e2);
+        pair.push_back(ep);
     }
 };
+
 
 class Solution {
 public:
@@ -30,17 +38,32 @@ public:
         sum_pair.push_back(pair);
     }
 
-    void proper_insert(vector<struct elem> &list, int value) {
+    void add_pair(vector<vector<int> > &sum_pair, struct elem *e, int value) {
+        for (int i = 0; i < (e->pair).size(); ++i) {
+            struct elem_pair ep = (e->pair)[i];
+            vector<int> pair;
+            pair.push_back((ep.elem1)->value);
+            pair.push_back((ep.elem2)->value);
+            pair.push_back(value);
+            sum_pair.push_back(pair);
+        }
+    }
+
+    void proper_insert(vector<struct elem> &list, struct elem *e) {
         vector<struct elem>::iterator it = list.begin();
+        int value = e->value;
         while (it != list.end() && it->value < value) it++;
         if (it == list.end()) {
-            struct elem e(value, 1);
-            list.insert(list.end(), e);
+            list.insert(list.end(), *e);
         } else if (it->value == value) {
-            it->cnt++;
+            if (it->pair.size() == 0) {
+                it->cnt++;
+                delete e;
+            } else {
+                (it->pair).insert(it->pair.end(), e->pair.begin(), e->pair.end());
+            }
         } else {
-            struct elem e(value, 1);
-            list.insert(it, e);
+            list.insert(it, *e);
         }
     }
 
@@ -50,12 +73,12 @@ public:
         while (i < mlist.size() && j >= 0) {
             if (-mlist[i].value == plist[j].value) {
                 switch(mflag) {
-                case 0:
+                case 0: //with zero for no merge
                     add_pair(sum_pair, mlist[i].value, 0, plist[j].value);
                 case 1: //mlist is merge
-                    add_pair(sum_pair, (mlist[i].elem1)->value, (mlist[i].elem2)->value, plist[j].value);
+                    add_pair(sum_pair, &mlist[i], plist[j].value);
                 case 2: //plist is merge
-                    add_pair(sum_pair, (plist[j].elem1)->value, (mlist[j].elem2)->value, plist[i].value);
+                    add_pair(sum_pair, &plist[j], mlist[i].value);
                 }
                 i++;
             }
@@ -65,12 +88,16 @@ public:
     }
 
     void merge_pair(vector<struct elem> &list, vector<struct elem> &mergelist) {
-        for (int i = 0; i < list.size() - 1; ++i) {
-            if (list[i].cnt > 1) 
-                proper_insert(mergelist, 2 * list[i].value);
+        struct elem *e;
+        for (int i = 0; i < list.size(); ++i) {
+            if (list[i].cnt > 1) {
+                e = new struct elem(2 * list[i].value, 1, &list[i], &list[i]);
+                proper_insert(mergelist, e);
+            }
 
             for (int j = 0; j < i; ++j) {
-                proper_insert(mergelist, list[i].value + list[j].value);
+                e = new struct elem(list[i].value + list[j].value, 1, &list[i], &list[j]);
+                proper_insert(mergelist, e);
             }
         }
     }
@@ -79,20 +106,23 @@ public:
         vector<vector<int> > sum_pair;
         vector<struct elem> m_sorted_keys, p_sorted_keys, mergelist;
         int cnt0 = 0, cntp = 0, cntm = 0;
+        struct elem *e;
 
         if (nums.size() < 2) return sum_pair;
         
         for (int i = 0; i < nums.size(); ++i) {
+            e = new struct elem(nums[i], 1);
             if (nums[i] == 0) {
                 cnt0++;
             } else if (nums[i] > 0) {
-                proper_insert(p_sorted_keys, nums[i]);
+                proper_insert(p_sorted_keys, e);
                 cntp++;
             } else {
-                proper_insert(m_sorted_keys, nums[i]);
+                proper_insert(m_sorted_keys, e);
                 cntm++;
             }
         }
+
 
         if (cnt0 > 2) add_pair(sum_pair, 0, 0, 0);
         if (cntp == 0 || cntm == 0) return sum_pair;
