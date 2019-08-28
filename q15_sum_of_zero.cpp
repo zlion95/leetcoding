@@ -14,7 +14,6 @@ public:
         pair.push_back(j);
         pair.push_back(k);
         sum_pair.push_back(pair);
-        cout << i << " " << j << " " << k << endl;
     }
 
     void proper_insert(vector<int> &list, int value) {
@@ -32,7 +31,7 @@ public:
         return false;
     }
 
-    bool find2add_when_zero(map<int, int> &value_maps, vector<vector<int> > &sum_pair,
+    void find2add_when_zero(map<int, int> &value_maps, vector<vector<int> > &sum_pair,
             int value, bool with_zero) {
         if (with_zero)
             if (find_one(value_maps, -value))
@@ -55,18 +54,12 @@ public:
             if (it == value_maps.end()) {
                 value_maps[nums[i]] = 1;
                 proper_insert(sorted_keys, nums[i]);
-                cout << nums[i] << endl;
             }
             else value_maps[nums[i]] += 1;
         }
 
         zstart = sorted_keys.size();
         pstart = 0;
-        for (int i = 0; i < sorted_keys.size(); ++i) {
-            cout << sorted_keys[i] << " ";
-        }
-        cout << endl;
-
         while (pstart < sorted_keys.size()) {
             if (sorted_keys[pstart] == 0) {
                 zstart = pstart;
@@ -76,36 +69,27 @@ public:
             else if (sorted_keys[pstart] > 0) break;
             pstart++;
         }
-        cout << "zstart: " << zstart << " pstart: " << pstart << endl;
-        cout << "value_maps size: " << value_maps.size() << endl;
 
-        //with more than 3 of zero
         if (zstart < sorted_keys.size()){
-            cout << "value: " << value_maps[0] << endl;
             if (value_maps[0] > 2)
                 add_pair(sum_pair, 0, 0, 0);
             with_zero = true;
         }
-        //all negative
         if (pstart == sorted_keys.size()) return sum_pair;
         minus_end = min(zstart, pstart);
-        //all positive
         if (minus_end == 0) return sum_pair;
 
-        //more than 2
         if (minus_end >= 2 || (minus_end == 1 && value_maps[sorted_keys[0]] > 1)) {
             for (int i = 0; i < minus_end; ++i) {
                 if (value_maps[sorted_keys[i]] > 1) {
                     value = -sorted_keys[i] * 2;
                     if (find_one(value_maps, value))
                         add_pair(sum_pair, sorted_keys[i], sorted_keys[i], value);
-                    cout << "mark1" << endl;
                 }
                 for (int j = 0; j < i; ++j) {
                     value = -(sorted_keys[i] + sorted_keys[j]);
                     if (find_one(value_maps, value))
                         add_pair(sum_pair, sorted_keys[i], sorted_keys[j], value);
-                    cout << "mark2" << endl;
                 }
                 find2add_when_zero(value_maps, sum_pair, sorted_keys[i], with_zero);
             }
@@ -120,15 +104,14 @@ public:
                     value = -sorted_keys[i] * 2;
                     if (find_one(value_maps, value))
                         add_pair(sum_pair, sorted_keys[i], sorted_keys[i], value);
-                    cout << "mark3" << endl;
                 }
                 for (int j = pstart; j < i; ++j) {
                     value = -(sorted_keys[i] + sorted_keys[j]);
                     if (find_one(value_maps, value))
                         add_pair(sum_pair, sorted_keys[i], sorted_keys[j], value);
-                    cout << "mark4" << endl;
                 }
-                find2add_when_zero(value_maps, sum_pair, sorted_keys[i], with_zero);
+                if (one_minus)
+                    find2add_when_zero(value_maps, sum_pair, sorted_keys[i], with_zero);
             }
         } else if (one_minus && with_zero) {
             if (sorted_keys[0] == -sorted_keys[pstart])
