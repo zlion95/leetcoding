@@ -8,11 +8,7 @@ using namespace std;
 class Solution {
 public:
     void add_pair(vector<vector<int> > &sum_pair, int i, int j, int k) {
-        vector<int> pair;
-        pair.push_back(i);
-        pair.push_back(j);
-        pair.push_back(k);
-        sum_pair.push_back(pair);
+        sum_pair.push_back(vector<int>{i, j, k});
     }
 
     bool sort_func(int i, int j) {return i < j;}

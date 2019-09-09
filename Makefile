@@ -1,6 +1,6 @@
 CC := g++
 
-CFLAGS := 
+CFLAGS := -std=c++11
 
 SRC := $(wildcard *.cpp)
 targets := $(patsubst %.cpp,%.out,$(SRC))
