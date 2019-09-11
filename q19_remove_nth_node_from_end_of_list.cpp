@@ -1,30 +1,44 @@
 #include <iostream>
+#include "linked_list.h"
 
 using namespace std;
-
-/**
- * Definition for singly-linked list.
- */
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
-};
 
 void printList(ListNode *head) {
     ListNode *p = head;
     cout << "List: [";
-    while (p->next) {
-        cout << p->val << ", ";
-        p = p->next;
+    if (p) {
+        while (p->next) {
+            cout << p->val << ", ";
+            p = p->next;
+        }
+        cout << p->val << "]" << endl;
+    } else {
+        cout << "]" << endl;
     }
-    cout << p->val << "]" << endl;
 }
 
 class Solution {
 public:
     ListNode* removeNthFromEnd(ListNode* head, int n) {
-        
+        ListNode *p = head, *prev = head, *last = NULL;
+        while (n - 1 > 0 && p->next != NULL) {
+            p = p->next;
+            n--;
+        }
+
+        while (p->next) {
+            p = p->next;
+            last = prev;
+            prev = prev->next;
+        }
+
+        if (last != NULL)
+            last->next = prev->next;
+        else
+            head = prev->next;
+
+        delete prev;
+        return head;
     }
 };
 
@@ -50,7 +64,9 @@ int main(int argc, char **argv) {
     }
     
     cin >> n;
+    cout << "n: " << n << endl;
     printList(head);
-    s.removeNthFromEnd(head, n);
+    head = s.removeNthFromEnd(head, n);
+    printList(head);
     
 }
