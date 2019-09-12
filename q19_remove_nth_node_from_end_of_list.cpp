@@ -3,19 +3,6 @@
 
 using namespace std;
 
-void printList(ListNode *head) {
-    ListNode *p = head;
-    cout << "List: [";
-    if (p) {
-        while (p->next) {
-            cout << p->val << ", ";
-            p = p->next;
-        }
-        cout << p->val << "]" << endl;
-    } else {
-        cout << "]" << endl;
-    }
-}
 
 class Solution {
 public:
