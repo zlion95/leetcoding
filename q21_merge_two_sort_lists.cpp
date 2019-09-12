@@ -6,29 +6,21 @@ using namespace std;
 class Solution {
 public:
     ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
-        ListNode *head = new ListNode(0);
-        ListNode *p1 = l1, *p2 = l2, *result = head;
+        ListNode head(0), *result = &head;
 
-        while (p1 != NULL && p2 != NULL) {
-            if (p1->val <= p2->val) {
-                result->next = p1;
-                p1 = p1->next;
+        while (l1 && l2) {
+            if (l1->val <= l2->val) {
+                result->next = l1;
+                l1 = l1->next;
             } else {
-                result->next = p2;
-                p2 = p2->next;
+                result->next = l2;
+                l2 = l2->next;
             }
             result = result->next;
-            result->next = NULL;
         }
-        if (p1 != NULL) {
-            result->next = p1;
-        }
-        if (p2 != NULL) {
-            result->next = p2;
-        }
-        result = head->next;
-        delete head;
-        return result;
+        if (l1) result->next = l1;
+        if (l2) result->next = l2;
+        return head.next;
     }
 };
 
