@@ -18,17 +18,8 @@ public:
         return next;
     }
 
-    ListNode* knext(ListNode *p, int k) {
-        while (k > 0 && p != NULL) {
-            p = p->next;
-            --k;
-        }
-        if (k == 0) return p;
-        else return NULL;
-    }
-
-
-    void kswap(ListNode *prev, int k) {
+    // Solution 1: Use k-1 times two-pair swap instead of kgroup swap.
+    void kswap1(ListNode *prev, int k) {
         ListNode *l1, *l2;
         for (int i = k - 1; i > 0; --i) {
             l1 = prev;
@@ -40,15 +31,37 @@ public:
         }
     }
 
+    ListNode* knext(ListNode *start, int k) {
+        ListNode *p = start;
+        while (k > 0 && p != NULL) {
+            p = p->next;
+            --k;
+        }
+        if (k == 0) return p;
+        else return NULL;
+    }
+
+    void kswap(ListNode *prev, ListNode *end_elem, int k) {
+        ListNode *s = prev->next, *swap_end = end_elem->next, *end = swap_end;
+        while (s != swap_end) {
+            prev->next = s->next;
+            s->next = end;
+            end = s;
+            s = prev->next;
+        }
+        prev->next = end;
+    }
+
     ListNode* reverseKGroup(ListNode* head, int k) {
-        ListNode *tempHead = new ListNode(0), *p = tempHead, *p_knext;
+        ListNode *tempHead = new ListNode(0), *p = tempHead, *p_knext, *temp_next;
 
         if (head == NULL) return head;
         tempHead->next = head;
         p_knext = knext(p, k);
         while (p_knext != NULL && p != NULL) {
-            kswap(p, k);
-            p = knext(p, k);
+            temp_next = p->next;
+            kswap(p, p_knext, k);
+            p = temp_next;
             p_knext = knext(p, k);
         }
         p = tempHead->next;
@@ -77,3 +90,4 @@ int main(int argc, char **argv) {
     printList(p);
     delete head;
 }
+
