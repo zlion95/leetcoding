@@ -16,7 +16,14 @@ public:
             ++count;
         }
         if (k == 0 && !l2) return head;
-        else if (k > 0) return rotateRight(head, k % count);
+        else if (k > 0) {
+            k %= count;
+            l2 = l1;
+            while (k) {
+                l2 = l2->next;
+                --k;
+            }
+        }
 
         while (l2->next != NULL) {
             l1 = l1->next;
