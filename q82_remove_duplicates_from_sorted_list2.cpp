@@ -15,26 +15,33 @@ public:
     }
 
     ListNode* deleteDuplicates(ListNode* head) {
-        ListNode *prev = new ListNode(0), *cur = head, *next;
+        ListNode *new_head = new ListNode(0), *prev = new_head, *cur = head;
         bool is_dup = false;
 
         if (!head) return head;
         prev->next = head;
-        next = cur;
-        while (next) {
-            if (next->val == cur->val && !is_dup) is_dup = true;
-            else if (next->val != cur->val && is_dup) {
-                free(cur, next);
-                prev->next = next;
-                cur = next;
+        
+        while (cur->next) {
+            if (prev->next->val == cur->next->val) {
+                is_dup = true;
+                cur = cur->next;
+            } else if (is_dup) {
                 is_dup = false;
-            }
-            else if (next->val != cur->val && !is_dup) {
-                prev = cur;
+                cur = cur->next;
+                free(prev->next, cur);
+                prev->next = cur;
+            } else {
+                prev = prev->next;
                 cur = cur->next;
             }
-            next = next->next;
         }
+        if (is_dup) {
+            is_dup = false;
+            cur = cur->next;
+            free(prev->next, cur);
+            prev->next = cur;
+        }
+        return new_head->next;
     }
 };
 
