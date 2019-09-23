@@ -1,0 +1,39 @@
+// Definition for a Node.
+class Node {
+public:
+    int val;
+    Node* next;
+    Node* random;
+
+    Node() {}
+
+    Node(int _val, Node* _next, Node* _random) {
+        val = _val;
+        next = _next;
+        random = _random;
+    }
+};
+
+Node * copyRandomList(Node* head) {
+    Node *p = head, *copy_head = new Node(0, head, NULL), *copy_p = copy_head;
+
+    while (p) {
+        copy_p->next = new Node(p->val, NULL, NULL);
+        copy_p = copy_p->next;
+        p = p->next;
+    }
+
+    p = head;
+    copy_p = copy_head->next;
+    while (p) {
+        Node *temp = head, *copy_temp = copy_head->next;
+        while (temp != p->random) {
+            temp = temp->next;
+            copy_temp = copy_temp->next;
+        }
+        copy_p->random = copy_temp;
+        p = p->next;
+        copy_p = copy_p->next;
+    }
+    return copy_head->next;
+}
