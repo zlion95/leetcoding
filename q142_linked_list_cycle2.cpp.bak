@@ -1,0 +1,53 @@
+class Solution {
+public:
+    ListNode* detectCycle(ListNode *head) {
+        if (!head) return head;
+        ListNode *p1 = head, *p2 = head;
+
+        do {
+            p1 = p1->next;
+            p2 = p2->next;
+            if (!p2) break;
+            p2 = p2->next;
+        } while (p2 != NULL && p1 != p2);
+
+        if (p2 == NULL) return p2;
+
+        /*
+           This Method use a math equation:
+           Example: 
+            O->O->O->O->O
+                  ^     |
+                  |     |
+                  -------
+            x: times of step to meet for p1 and p2.
+            y: times to pass entire cycle.
+
+           Now, we have a simple relationship for x and y: p2_step - p1_step = n * cycle_size
+            (2*x - x) % y = 0   <=>    x = n * y    (1)
+                                                                        ps: n is a positive integer.    0 < n
+
+            we let i: index to enter cycle.
+            we let b: distance of p1 from enter node to meet node.
+
+           So, one more relationship is: 
+            i = x - b                               (2)
+
+           With the help of (1) and (2), we can derive an equation:
+            y - b + (n - 1) * y = i                 (3)
+
+           What's the (3) equation want to show? That means that we can use p1 from meet node to walk [y-b + (n-1) * y] times,
+           it will just right meet the cycle enter node!
+           Left of equation (3) contains two part:
+                1. (y-b) represent the meet point need go (y-b) step to back to cycle enter node.
+                2. (n-1)*y represent the cycle times. (n>0, so it will at least zero cycle, don't worry)
+
+           In order word, if we walk throught the head had p1 pointer, the node they meet is the node for cycle enter node!!
+         */
+        while (head != p1) {
+            head = head->next;
+            p1 = p1->next;
+        }
+        return p1;
+    }
+};
