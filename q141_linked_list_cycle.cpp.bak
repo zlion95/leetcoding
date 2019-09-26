@@ -3,11 +3,23 @@ public:
     bool hasCycle(ListNode *head) {
         if (!head) return false;
         ListNode *p1 = head->next, *p2 = head;
+        int i = 0, x, y;
+        bool first_meet = true;
+
         while (p1 && p2) {
-            if (p1 == p2) break;
+            if (p1 == p2) {
+                if (first_meet) {
+                    x = i;
+                    first_meet = false;
+                } else {
+                    y = i - x;
+                    break;
+                }
+            }
             if (p1->next) p1 = p1->next->next;
             else p1 = p1->next;
             p2 = p2->next;
+            ++i;
         } 
         if (p1 && p2) return true;
         else return false;
