@@ -1,0 +1,63 @@
+#include <iostream>
+
+using namespace std;
+
+// Definition for a Node.
+class Node {
+public:
+    int val;
+    Node* prev;
+    Node* next;
+    Node* child;
+
+    Node() {}
+
+    Node(int _val, Node* _prev, Node* _next, Node* _child) {
+        val = _val;
+        prev = _prev;
+        next = _next;
+        child = _child;
+    }
+};
+
+class Solution {
+public:
+    Node* get_end(Node* head) {
+        Node *p = head, *temp, *cur = NULL;
+
+        while (p) {
+            temp = p->next;
+            if (p->child) {
+                cur = get_end(p->child);
+                p->child->prev = p;
+                p->next = p->child;
+                p->child = NULL;
+                cur->next = temp;
+            } else {
+                cur = p;
+            }
+            p = temp;
+            if (p) p->prev = cur;
+        }
+        return cur;
+    }
+
+    Node* flatten(Node* head) {
+        get_end(head);
+        return head;
+    }
+};
+
+int main(int argc, char **argv) {
+    int m, n, value, index;
+    Node *head = new Node(0, NULL, NULL, NULL), *p = head;
+
+    cin >> m;
+    while (m) {
+        cin >> n;
+        while (n) {
+            --n;
+        }
+        --m;
+    }
+}
