@@ -13,3 +13,10 @@ When you add some new test case, you can add it to ./test_case, and use followin
 ```bash
     $ cat ./test_case/qxx_case1 | ./qxx_xxx.out
 ```
+
+##NOTE
+Please add don't sync iostream when push to leetcode.
+
+```c++
+	static int x = []() {ios::sync_with_stdio(false); cin.tie(0); return 0;} ();
+```

@@ -5,17 +5,13 @@
 
 using namespace std;
 
-/*
-			for (int i =0; i<128; ++i) {
-				if (dup[i].first != 0) cout << "(" << dup[i].first << ", " << dup[i].second << ") ";
-			}
-			cout << endl;
-*/
-class Solution {
+class Solution
+{
 public:
 	//aab => aba
 	//aaaabsd => abadasa
-	string reorganizeString(string S) {
+	string reorganizeString(string S)
+	{
 		string result = "";
 		vector<pair<int, char>> dup;
 
@@ -37,11 +33,11 @@ public:
 	}
 };
 
-int main(int argc, char **argv) {
-	string str;
-	Solution s;
+int main(int argc, char **argv)
+{
+	string s;
+	Solution solution;
 
-	cin >> str;
-	cout << str << endl;
-	cout << s.reorganizeString(str) << endl;
+	cin >> s;
+	cout << solution.reorganizeString(s) << endl;
 }
