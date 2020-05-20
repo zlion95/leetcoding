@@ -11,7 +11,7 @@ private:
 	unordered_map<int, int> inmap;
 
 public:
-
+	//先序遍历的一个变形
 	TreeNode *build(vector<int> &preorder, int preStart, int preEnd, 
 			vector<int> &inorder, int inStart, int inEnd)
 	{
